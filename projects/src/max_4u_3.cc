@@ -43,6 +43,7 @@ const double
   bnL_scl[]   = {0e0, 0e0, 0e0,  1e0,  5e1/1e2,    5*1e4},
   bnL_min[]   = {0e0, 0e0, 0e0, -5e2, -5.0e4, -1.5e5},
   bnL_max[]   = {0e0, 0e0, 0e0,  5e2,  5.0e4,  1.5e5},
+  // Compensate for different units.
   scl_svd[]   = {1e0, 1e0, 1e0, 1e0, 5e2, 5e2, 5e2};
 
 #if 1
@@ -67,7 +68,8 @@ const double
   scl_a[]     = {1e0, 1e0, 1e0, 1e0},
   // scl_ksi[]   = {0e0, 5*1e2, 1e0, 1e0, 1e0, 1e0, 1e0},
   // scl_a[]     = {2e-1, 2e-1, 2e-1, 2e-1},
-  scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e3, 1e3},
+  // scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e3, 1e3},
+  scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e4, 1e4},
   scl_k_sum[] = {0e2, 0e2},
 #else
   // Then proceed with:
@@ -80,10 +82,10 @@ const bool
   b_3_opt     = true,
   b_4_opt     = true,
   b_3_zero    = false,
-  b_4_zero    = !false;
+  b_4_zero    = false;
 
 const int
-  svd_n_cut   = 0;
+  svd_n_cut   = 1;
 
 const double
   scl_h[]     = {1e-2, 1e-2},
@@ -754,7 +756,7 @@ void get_sing_val(const int n, double w[], const int svd_n_cut)
   std::vector<int> ind;
 
   ind = sort_sing_val(n, w);
-  printf("\n");
+  printf("\ninitial:\n");
   for (int k = 1; k <= n; k++) {
     printf("  %9.3e", w[ind[k-1]]);
     if (k <= n-svd_n_cut)
@@ -764,7 +766,7 @@ void get_sing_val(const int n, double w[], const int svd_n_cut)
       printf(" (zeroed)");
     }
   }
-  printf("\n");
+  printf("\nscaled & singular values removed\n");
   for (int k = 1; k <= n; k++)
     printf("  %9.3e", w[ind[k-1]]);
   printf("\n");
