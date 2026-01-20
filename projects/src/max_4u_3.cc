@@ -46,7 +46,7 @@ const double
   // Compensate for different units.
   scl_svd[]   = {1e0, 1e0, 1e0, 1e0, 5e2, 5e2, 5e2};
 
-#if 1
+#if 0
   // Start with:
   //   svd_n_cut = 0 or 1,
   //   scl_ksi[] = [0e0, 1e2, 5e0, 5e0, 5e0, 5e0, 5e0],
@@ -69,7 +69,7 @@ const double
   // scl_ksi[]   = {0e0, 5*1e2, 1e0, 1e0, 1e0, 1e0, 1e0},
   // scl_a[]     = {2e-1, 2e-1, 2e-1, 2e-1},
   // scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e3, 1e3},
-  scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e4, 1e4},
+  scl_K_avg[] = {1e-3, 1e-3, 5e-3, 5e3, 5e3},
   scl_k_sum[] = {0e2, 0e2},
 #else
   // Then proceed with:
@@ -85,7 +85,7 @@ const bool
   b_4_zero    = false;
 
 const int
-  svd_n_cut   = 1;
+  svd_n_cut   = 0;
 
 const double
   scl_h[]     = {1e-2, 1e-2},
@@ -974,7 +974,7 @@ void no_mpoles(const int n)
 
 void get_bns(param_type &bns)
 {
-  const int lat = 5;
+  const int lat = 52;
 
   if (b_3_zero)
     no_mpoles(Sext);
@@ -1040,12 +1040,29 @@ void get_bns(param_type &bns)
       bns.add_Fam("o3_h2",  Oct, bnL_min[Oct], bnL_max[Oct], bnL_scl[Oct]);
     }
     break;
-  case 5:
+  case 51:
     if (b_3_opt) {
       bns.add_Fam("s1_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
       bns.add_Fam("s2_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
       bns.add_Fam("s3_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
       bns.add_Fam("s4_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
+    }
+
+    if (b_4_opt) {
+      bns.add_Fam("o1_n1",  Oct, bnL_min[Oct], bnL_max[Oct], bnL_scl[Oct]);
+      bns.add_Fam("o2_n1",  Oct, bnL_min[Oct], bnL_max[Oct], bnL_scl[Oct]);
+      bns.add_Fam("o3_n1",  Oct, bnL_min[Oct], bnL_max[Oct], bnL_scl[Oct]);
+    }
+    break;
+  case 52:
+    if (b_3_opt) {
+      bns.add_Fam("s1_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
+      bns.add_Fam("s2_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
+      bns.add_Fam("s3a_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
+      bns.add_Fam("s3b_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
+      bns.add_Fam("s3c_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
+      bns.add_Fam("s4a_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
+      bns.add_Fam("s4b_n1", Sext, bnL_min[Sext], bnL_max[Sext], bnL_scl[Sext]);
     }
 
     if (b_4_opt) {
