@@ -44,7 +44,8 @@ const double
   bnL_min[]   = {0e0, 0e0, 0e0, -5e2, -5.0e4, -1.5e5},
   bnL_max[]   = {0e0, 0e0, 0e0,  5e2,  5.0e4,  1.5e5},
   // Compensate for different units.
-  scl_svd[]   = {1e0, 1e0, 1e0, 1e0, 5e2, 5e2, 5e2};
+  // scl_svd[]   = {1e0, 1e0, 1e0, 1e0, 5e2, 5e2, 5e2};
+  scl_svd[]   = {1e0, 1e0, 1e0, 1e0, 1e0, 1e0, 1e0, 5e2, 5e2, 5e2};
 
 #if 0
   // Start with:
