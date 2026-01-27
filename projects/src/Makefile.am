@@ -7,7 +7,8 @@ bin_PROGRAMS = \
 	vlad_5 sls_2 diamond_ii delta delta_lo delta_lo2 quad2d quad3d \
 	tune_conf tune_conf_2 tune_conf_3 tbs get_dnu mpole_scheme \
 	poincare_map chk_drv_terms sxt_resp_mat max_4u max_4u_2 max_4u_3 \
-	max_4u_4 max_4u_conj_grad_3
+	max_4u_4 max_4u_conj_grad_3 \
+	gustavo
 #               sext_resp_mat
 
 thor_SOURCES               = thor.cc
@@ -41,6 +42,7 @@ max_4u_2_SOURCES           = max_4u_2.cc param_type.cc
 max_4u_3_SOURCES           = max_4u_3.cc param_type.cc
 max_4u_4_SOURCES           = max_4u_4.cc param_type.cc
 max_4u_conj_grad_3_SOURCES = max_4u_3.cc param_type.cc
+gustavo_SOURCES            = gustavo.cc param_type.cc
 # sext_resp_mat_SOURCES      = sext_resp_mat.c
 
 LOCAL = /usr/local
