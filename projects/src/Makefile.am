@@ -8,7 +8,7 @@ bin_PROGRAMS = \
 	tune_conf tune_conf_2 tune_conf_3 tbs get_dnu mpole_scheme \
 	poincare_map chk_drv_terms sxt_resp_mat max_4u max_4u_2 max_4u_3 \
 	max_4u_4 max_4u_conj_grad_3 \
-	gustavo
+	gustavo gustavo_s
 #               sext_resp_mat
 
 thor_SOURCES               = thor.cc
@@ -43,6 +43,7 @@ max_4u_3_SOURCES           = max_4u_3.cc param_type.cc
 max_4u_4_SOURCES           = max_4u_4.cc param_type.cc
 max_4u_conj_grad_3_SOURCES = max_4u_3.cc param_type.cc
 gustavo_SOURCES            = gustavo.cc param_type.cc
+gustavo_s_SOURCES            = gustavo_s.cc param_type.cc
 # sext_resp_mat_SOURCES      = sext_resp_mat.c
 
 LOCAL = /usr/local
@@ -50,7 +51,7 @@ LOCAL = /usr/local
 LIBS =	$(THOR_LIB)/thor/lib/libthor.a \
 	$(THOR_LIB)/thor/lib/libTPSALib.a $(THOR_LIB)/thor/lib/libLieLib.a \
 	$(NUM_REC)/lib/libnum_rec.a \
-	-L$(LOCAL)/opt/gsl/lib -lgsl \
+	-L$(LOCAL)/opt/gsl/lib -lgsl -lgslcblas \
 	-L$(LOCAL)/opt/gfortran/lib/gcc/current -lgfortran
 
 # C Preprocessor flags.
