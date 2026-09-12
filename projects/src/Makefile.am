@@ -45,19 +45,19 @@ gustavo_SOURCES            = gustavo.cc param_type.cc
 # sext_resp_mat_SOURCES      = sext_resp_mat.c
 inversion_1_SOURCES        = inversion_1.cc param_type.cc
 
-LOCAL = /usr/local
-
+# GSL and the Fortran runtime are resolved by configure.
 LIBS =	$(THOR_LIB)/thor/lib/libthor.a \
 	$(THOR_LIB)/thor/lib/libTPSALib.a $(THOR_LIB)/thor/lib/libLieLib.a \
 	$(NUM_REC)/lib/libnum_rec.a \
-	-L$(LOCAL)/opt/gsl/lib -lgsl \
-	-L$(LOCAL)/opt/gfortran/lib/gcc/current -lgfortran
+	$(GSL_LIBS) \
+	$(FLIBS)
 
 # C Preprocessor flags.
 AM_CPPFLAGS = \
+	$(GSL_CFLAGS) \
+	$(BOOST_CFLAGS) \
 	-I$(THOR_LIB)/thor/inc \
-	-I$(NUM_REC)/inc \
-	-I$(LOCAL)/opt/boost/include
+	-I$(NUM_REC)/inc
 
 # FORTRAN 77 flags (The package maintainer’s variant of FFLAGS).
 AM_FFLAGS = \
