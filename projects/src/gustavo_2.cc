@@ -1,11 +1,8 @@
 // Optimise higher-order-achromat:
 //
-// - Runtime controls: the program accepts `--phase=N`, `--svd_n_cut=N`, and
-//   `--max_iter=N` (optional) and expects a lattice file argument. `svd_n_cut`
-//   controls how many singular values are removed (zeroed) during SVD-based
-//   solving. `max_iter` sets the maximum number of optimization iterations
-//   (default 300).
-// - Outputs: writes `flat_file.fit` (lattice) and `b4.out` (multipole strenghts).
+//   1. Optimise sextupoles - beware of singular values.
+//   3. Optimise octupoles - for obtained sextupole strengths.
+//   4. Optimise both sextupoles & octupoles.
 
 #include <map>
 #include <boost/any.hpp>
@@ -38,7 +35,7 @@ int
 
 extern double b2_max;
 
-int
+const int
     max_iter = 300;
 
 const double
@@ -46,28 +43,63 @@ const double
     delta_max = 6e-2,
     beta_inj[] = {3.7, 3.9},
 
-    bnL_scl[] = {0e0, 0e0, 0e0, 1e0, 5e1 / 1e2, 5 * 1e4},
+    bnL_scl[] = {0e0, 0e0, 0e0, 1e0, 5e1 / 1e2 * 2e0, 5 * 1e4}, // Scaling of multipole {_, b_1, b_2, ...}
     bnL_min[] = {0e0, 0e0, 0e0, -5e2, -5.0e4, -1.5e5},
     bnL_max[] = {0e0, 0e0, 0e0, 5e2, 5.0e4, 1.5e5},
     // Compensate for different units.
     scl_svd[] = {1e0, 1e0, 1e0, 1e0, 5e2, 5e2, 5e2};
 // scl_svd[] = {1e0, 1e0, 1e0, 1e0, 1e0, 1e0, 1e0, 5e2, 5e2, 5e2};
 
-bool b_3_opt = true;
-bool b_4_opt = true;
-bool b_3_zero = false;
-bool b_4_zero = false;
+#if 1
+// Start with:
+//   svd_n_cut = 0 or 1,
+//   scl_ksi[] = [0e0, 1e2, 5e0, 5e0, 5e0, 5e0, 5e0],
+//   scl_  a   = [1e0, 1e0, 1e0, 1e0],
+//   scl_K_avg = [1e-3, 1e-3, 1e-3, 1e3, 1e3].
 
-int svd_n_cut = 0;
+const bool
+    b_3_opt = true,
+    b_4_opt = true,
+    b_3_zero = true,
+    b_4_zero = true;
 
-double scl_h[] = {1e-2, 1e-2};
-double scl_ksi[] = {0e0, 1e2, 1e0, 1e0, 1e0, 1e0, 1e0};
-double scl_a[] = {5e0, 5e0, 5e0, 5e0};
-double scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e2, 1e2};
-double scl_k_sum[] = {0e2, 0e2};
+const int
+    svd_n_cut = 0;
 
-const double step = 4 * 0.15;
-// const double step = 0.4;
+const double
+    scl_h[] = {1e-2, 1e-2},
+    scl_ksi[] = {0e0, 1e2, 5e0, 5e0, 5e0, 5e0, 5e0},
+    scl_a[] = {1e0, 1e0, 1e0, 1e0},
+    // scl_ksi[]   = {0e0, 5*1e2, 1e0, 1e0, 1e0, 1e0, 1e0},
+    // scl_a[]     = {2e-1, 2e-1, 2e-1, 2e-1},
+    // scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e3, 1e3},
+    scl_K_avg[] = {1e-3, 1e-3, 1e-3, 5e3, 5e3},
+    scl_k_sum[] = {0e2, 0e2},
+#else
+// Then proceed with:
+//   svd_n_cut = 0,
+//   scl_ksi[] = [0e0, 1e2, 1e0, 1e0, 1e0, 1e0, 1e].
+//   scl_a     = [5e0, 5e0, 5e0, 5e0],
+//   scl_K_avg = [1e-3, 1e-3, 1e-3, 1e2, 1e2].
+
+const bool
+    b_3_opt = true,
+    b_4_opt = true,
+    b_3_zero = false,
+    b_4_zero = false;
+
+const int
+    svd_n_cut = 0;
+
+const double
+    scl_h[] = {1e-2, 1e-2},
+    scl_ksi[] = {0e0, 1e2, 1e0, 1e0, 1e0, 1e0, 1e0},
+    scl_a[] = {5e0, 5e0, 5e0, 5e0},
+    scl_K_avg[] = {1e-3, 1e-3, 1e-3, 1e2, 1e2},
+    scl_k_sum[] = {0e2, 0e2},
+#endif
+
+    step = 4 * 0.15;
 
 class Lie_gen_class
 {
@@ -358,7 +390,7 @@ std::vector<Lie_gen_class> get_adts(const tps &K)
   adts.push_back(get_Lie_gen("K", K, scl_a[0], 1, 1, 1, 1, 1));
   adts.push_back(get_Lie_gen("K", K, scl_a[0], 0, 0, 2, 2, 1));
 
-  if (NO >= 7)
+  if (NO >= 6)
   {
     adts.push_back(get_Lie_gen("K", K, scl_a[1], 3, 3, 0, 0, 0));
     adts.push_back(get_Lie_gen("K", K, scl_a[1], 2, 2, 1, 1, 0));
@@ -366,7 +398,7 @@ std::vector<Lie_gen_class> get_adts(const tps &K)
     adts.push_back(get_Lie_gen("K", K, scl_a[1], 0, 0, 3, 3, 0));
   }
 
-  if (NO >= 8)
+  if (NO >= 7)
   {
     adts.push_back(get_Lie_gen("K", K, scl_a[1], 3, 3, 0, 0, 1));
     adts.push_back(get_Lie_gen("K", K, scl_a[1], 2, 2, 1, 1, 1));
@@ -887,7 +919,7 @@ void correct(param_type &bns, const std::vector<Lie_gen_class> &Lie_gen,
 
   get_system(m, n, Lie_gen, A, b);
 
-#if 1 // ? What is the difference between this and SVD_lim ?
+#if 1
   dmcopy(A, m, n, U);
   dsvdcmp(U, m, n, w, V);
   get_sing_val(n, w, svd_n_cut);
@@ -930,7 +962,7 @@ void no_mpoles(const int n)
 
 void get_bns(param_type &bns)
 {
-  const int lat = 51;
+  const int lat = 53;
 
   if (b_3_zero)
     no_mpoles(Sext);
@@ -1119,69 +1151,9 @@ int main(int argc, char *argv[])
 
   set_state();
 
-  /* CLI parsing: --phase=N, --svd_n_cut=N, and --max_iter=N
-    First non-option argument is taken as lattice file. */
-  int phase = 2; /* default phase */
-  const char *latfile = nullptr;
-  for (int i = 1; i < argc; ++i)
-  {
-    if (strncmp(argv[i], "--phase=", 8) == 0)
-      phase = atoi(argv[i] + 8);
-    else if (strcmp(argv[i], "--phase") == 0 && i + 1 < argc)
-      phase = atoi(argv[++i]);
-    else if (strncmp(argv[i], "--svd_n_cut=", 12) == 0)
-      svd_n_cut = atoi(argv[i] + 12);
-    else if (strcmp(argv[i], "--svd_n_cut") == 0 && i + 1 < argc)
-      svd_n_cut = atoi(argv[++i]);
-    else if (strncmp(argv[i], "--max_iter=", 11) == 0)
-      max_iter = atoi(argv[i] + 11);
-    else if (strcmp(argv[i], "--max_iter") == 0 && i + 1 < argc)
-      max_iter = atoi(argv[++i]);
-    else if (argv[i][0] == '-')
-      fprintf(stderr, "Unknown option %s\n", argv[i]);
-    else if (!latfile)
-      latfile = argv[i];
-  }
+  rd_mfile(argv[1], elem);
+  rd_mfile(argv[1], elem_tps);
 
-  if (!latfile)
-  {
-    fprintf(stderr, "Usage: %s [--phase=N] [--svd_n_cut=N] [--max_iter=N] LATFILE\n", argv[0]);
-    return 1;
-  }
-
-  // Sanity checks for CLI arguments
-  ASSERT_MSG((phase == 1) || (phase == 2), "Invalid --phase: must be 1 or 2");
-  ASSERT_MSG((svd_n_cut >= 0) && (svd_n_cut <= 2), "Invalid --svd_n_cut: must be 0, 1, or 2");
-  ASSERT_MSG((max_iter > 0), "Invalid --max_iter: must be a positive integer");
-
-  // Apply phase-specific defaults
-  if (phase == 1)
-  {
-    b_3_opt = true;
-    b_4_opt = true;
-    b_3_zero = true;
-    b_4_zero = true;
-    double phase_i_scl_ksi[7] = {0e0, 1e3, 5e0, 5e0, 5e0, 5e0, 5e0};
-    for (int i = 0; i < 7; ++i)
-      scl_ksi[i] = phase_i_scl_ksi[i];
-    double phase_i_scl_a[4] = {1e0, 1e0, 1e0, 1e0};
-    for (int i = 0; i < 4; ++i)
-      scl_a[i] = phase_i_scl_a[i];
-    double phase_i_scl_K_avg[5] = {1e-3, 1e-3, 1e-3, 1e4, 1e4};
-    for (int i = 0; i < 5; ++i)
-      scl_K_avg[i] = phase_i_scl_K_avg[i];
-  }
-
-  rd_mfile(latfile, elem);
-  rd_mfile(latfile, elem_tps);
-
-  if (true)
-  {
-    printf("\nLattice file: %s\n", latfile);
-    printf("Phase: %d\n", phase);
-    printf("SVD n_cut: %d\n", svd_n_cut);
-    printf("Max iterations: %d\n", max_iter);
-  }
   // Initialize the symplectic integrator after the energy has been defined.
   ini_si();
 

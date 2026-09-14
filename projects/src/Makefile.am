@@ -7,7 +7,8 @@ bin_PROGRAMS = \
 	vlad_5 sls_2 diamond_ii delta delta_lo delta_lo2 quad2d quad3d \
 	tune_conf tune_conf_2 tune_conf_3 tbs get_dnu mpole_scheme \
 	poincare_map chk_drv_terms sxt_resp_mat max_4u max_4u_2 max_4u_3 \
-	max_4u_4 max_4u_conj_grad_3 gustavo inversion_1 gustavo_s
+	max_4u_4 max_4u_conj_grad_3 gustavo inversion_1 \
+	gustavo_s gustavo_options gustavo_options_9
 #               sext_resp_mat
 
 thor_SOURCES               = thor.cc
@@ -43,6 +44,10 @@ max_4u_4_SOURCES           = max_4u_4.cc param_type.cc
 max_4u_conj_grad_3_SOURCES = max_4u_3.cc param_type.cc
 gustavo_SOURCES            = gustavo.cc param_type.cc
 gustavo_s_SOURCES            = gustavo_s.cc param_type.cc
+gustavo_options_SOURCES    = gustavo_options.cc param_type.cc
+gustavo_options_9_SOURCES    = gustavo_options_9.cc param_type.cc
+gustavo_options_LDADD       = -lboost_program_options
+gustavo_options_9_LDADD     = -lboost_program_options
 # sext_resp_mat_SOURCES      = sext_resp_mat.c
 inversion_1_SOURCES        = inversion_1.cc param_type.cc
 
