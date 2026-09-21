@@ -8,7 +8,7 @@ libthor_a_SOURCES = \
 
 # C Preprocessor flags.
 AM_CPPFLAGS = $(GSL_CFLAGS) \
-	      -I../inc -I$(NUM_REC)/inc
+	      -I../inc
 
 # FORTRAN-90 flags.
 FFLAGS = \
