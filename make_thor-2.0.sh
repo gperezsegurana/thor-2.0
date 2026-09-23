@@ -1,20 +1,22 @@
 #!/bin/sh
 
-dir=`pwd`
+dir=$(pwd)
 
 # Remove autoconf cashe.
 rm -rf autom4te.cache
 rm -rf aclocal.m4
-rm -rf tho/lib/*
+rm -rf thor/lib/*
 
-make distclean
+if [ -f Makefile ]; then
+    make distclean || echo "make distclean failed; continuing with a clean bootstrap"
+fi
 
 mkdir -p config
 
-# Configure libtool (for shared libraries).
-#libtoolize
+# Every remaining step must succeed.
+set -e
 
 ./bootstrap
-./configure --prefix=$dir/thor
+./configure --prefix="$dir/thor" "$@"
 
 make install
