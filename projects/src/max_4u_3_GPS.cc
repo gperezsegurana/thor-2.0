@@ -191,7 +191,7 @@ public:
 
 ss_vect<tps> get_map(void)
 {
-  // 
+  //
   ss_vect<tps> M;
 
   M.identity();
@@ -600,7 +600,7 @@ void compute_Jacob
 	      << "\n" << std::setw(8) << name <<
       std::setw(4) << bns.Fnum[prm_no] << ":\n"
 	      << std::scientific << std::setprecision(3) << K_re << K_im;
- 
+
   clr_bn_par(bns.Fnum[prm_no], n);
   for (auto& term : Lie_gen) {
     const auto& label   = term.get_label();
@@ -684,7 +684,7 @@ std::vector<Lie_gen_class> compute_Lie_gen
   auto adts = get_adts(K_re);
   compute_Jacob(Id_scl, bns, adts);
   Lie_gen_scl(adts);
- 
+
   auto xi_nl = get_xi(K_re);
   compute_Jacob(Id_scl, bns, xi_nl);
   Lie_gen_scl(xi_nl);
@@ -725,7 +725,7 @@ void get_system
     }
     ++j1;
   }
- 
+
   if (debug) dmdump(stdout, (char *)"\nA:", A, m, n, (char *)" %10.3e");
 }
 
