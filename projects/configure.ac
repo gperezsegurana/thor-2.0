@@ -43,27 +43,36 @@ GSL_VERSION=`$GSL_CONFIG --version`
 AC_SUBST([GSL_CFLAGS])
 AC_SUBST([GSL_LIBS])
 
-# Boost is header-only for the facilities used by these programs. It is often
-# on the compiler's default include path on Linux. Homebrew can report its
-# prefix on macOS; elsewhere pass the package prefix with --with-boost=DIR.
-AC_ARG_WITH([boost],
-  [AS_HELP_STRING([--with-boost=DIR],
-                  [prefix of a Boost install, if its headers are not in the compiler's default path])])
+# Boost: the headers, and the compiled Boost.Program_options library. Linux
+# packages and environment modules put Boost on the compiler's default paths.
+# Homebrew does not, but can report its prefix. For any other install, pass
+# CPPFLAGS=-I<prefix>/include LDFLAGS=-L<prefix>/lib to configure.
 BOOST_CFLAGS=""
-AS_IF([test -n "$with_boost"],
-      [BOOST_CFLAGS="-I$with_boost/include"],
-      [AC_PATH_PROG([BREW], [brew], [no])
-       AS_IF([test "x$BREW" != xno],
-             [thor_brew_boost=`$BREW --prefix boost 2>/dev/null`
-              AS_IF([test -d "$thor_brew_boost/include"],
-                    [BOOST_CFLAGS="-I$thor_brew_boost/include"])])])
+AC_PATH_PROG([BREW], [brew], [no])
+AS_IF([test "x$BREW" != xno],
+      [thor_brew_boost=`$BREW --prefix boost 2>/dev/null`
+       AS_IF([test -d "$thor_brew_boost/include"],
+             [BOOST_CFLAGS="-I$thor_brew_boost/include"
+              LDFLAGS="$LDFLAGS -L$thor_brew_boost/lib"])])
 thor_save_CPPFLAGS=$CPPFLAGS
+thor_save_LIBS=$LIBS
 CPPFLAGS="$CPPFLAGS $BOOST_CFLAGS"
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/any.hpp], [],
-  [AC_MSG_ERROR([Boost headers not found. Install Boost or pass --with-boost=DIR.])])
+  [AC_MSG_ERROR([Boost headers not found. Install Boost, or pass its
+       include path in CPPFLAGS.])])
+LIBS="-lboost_program_options $LIBS"
+AC_MSG_CHECKING([for the Boost.Program_options library])
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM([[#include <boost/program_options.hpp>]],
+                   [[boost::program_options::options_description desc("x");]])],
+  [AC_MSG_RESULT([yes])],
+  [AC_MSG_RESULT([no])
+   AC_MSG_ERROR([Boost.Program_options not found. Install Boost with its
+       compiled libraries, or pass its library path in LDFLAGS.])])
 AC_LANG_POP([C++])
 CPPFLAGS=$thor_save_CPPFLAGS
+LIBS=$thor_save_LIBS
 AC_SUBST([BOOST_CFLAGS])
 
 AS_IF([test ! -d "$THOR_LIB/thor/lib"],
@@ -94,7 +103,8 @@ AC_MSG_NOTICE([
     FORTRAN 77:      $F77
     GSL:             $GSL_VERSION
       gsl-config:    $GSL_CONFIG
-    Boost cflags:    ${BOOST_CFLAGS:-(compiler default path)}
+    Boost cflags:    ${BOOST_CFLAGS:-(default paths or CPPFLAGS)}
+    LDFLAGS:         ${LDFLAGS:-(none)}
     THOR_LIB:        $THOR_LIB
     NUM_REC:         $NUM_REC
     install prefix:  $prefix

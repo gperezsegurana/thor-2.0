@@ -18,7 +18,7 @@ Requirements:
 
    GNU C/C++ and FORTRAN-95 compilers: gcc and gfortran.
    GNU Scientific Library GSL.
-   Boost headers.
+   Boost headers and the Boost.Program_options library.
    GNU autoconf/automake environment and libtool.
    "Numerical Recipes in C": http://www.nr.com.
 
@@ -28,7 +28,8 @@ On macOS:
 
 On Debian/Ubuntu:
 
-   sudo apt install build-essential gfortran autoconf automake libtool libgsl-dev libboost-dev
+   sudo apt install build-essential gfortran autoconf automake libtool libgsl-dev libboost-dev \
+     libboost-program-options-dev
 
 Build:
 
@@ -45,6 +46,11 @@ second step:
 Both scripts accept extra ``configure`` arguments. If GSL is not on ``PATH``,
 pass its prefix, for example ``./make_thor-2.0.sh --with-gsl=/opt/homebrew/opt/gsl``.
 Homebrew Boost is found automatically. For another Boost installation, pass
-its prefix to the projects build, e.g. ``./make_projects.sh --with-boost=DIR``.
-The projects configure step checks ``THOR_LIB`` and ``NUM_REC`` before building
-and reports the GSL installation it found.
+its paths to the projects build, e.g.
+``./make_projects.sh CPPFLAGS=-IDIR/include LDFLAGS=-LDIR/lib``.
+The projects configure step checks ``THOR_LIB`` and ``NUM_REC`` before building,
+checks that Boost.Program_options links, and reports the GSL and Boost it found.
+
+With environment modules, load the compiler, Boost and GSL modules before
+building. The programs are linked without an RPATH, so the same modules must
+also be loaded to run them.
