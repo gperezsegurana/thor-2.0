@@ -536,11 +536,14 @@ std::vector<Lie_gen_class> get_K_avg(const tps &K)
   tps                        avg;
   std::vector<Lie_gen_class> K_avg_2;
 
-  K_avg_2.push_back
-    (get_Lie_K_avg_gen("<K>", K, scl_K_avg[0], 2, 2, 0, 0, 0, 4, 4, 0, 0, 0));
+  // K_44000 & K_00440 are 8th order; their derivatives need NO >= 9.
+  if (NO >= 9) {
+    K_avg_2.push_back
+      (get_Lie_K_avg_gen("<K>", K, scl_K_avg[0], 2, 2, 0, 0, 0, 4, 4, 0, 0, 0));
 
-  K_avg_2.push_back
-    (get_Lie_K_avg_gen("<K>", K, scl_K_avg[1], 0, 0, 2, 2, 0, 0, 0, 4, 4, 0));
+    K_avg_2.push_back
+      (get_Lie_K_avg_gen("<K>", K, scl_K_avg[1], 0, 0, 2, 2, 0, 0, 0, 4, 4, 0));
+  }
 
   K_avg_2.push_back
     (get_Lie_K_avg_gen("<K>", K, scl_K_avg[2], 1, 1, 1, 1, 0, 2, 2, 1, 1, 0));
@@ -565,7 +568,7 @@ void prt_K_avg
 (const param_type &bns, const std::vector<Lie_gen_class> &K_avg)
 {
   int k = 0;
-  prt_Lie_K_avg_gen("<K> Terms:", k, 8, K_avg);
+  prt_Lie_K_avg_gen("<K> Terms:", k, (NO >= 9)? 8 : 6, K_avg);
 }
 
 
